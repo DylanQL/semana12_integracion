@@ -135,7 +135,28 @@ public class VetControllerTest {
 
         String response = mvcActions.andReturn().getResponse().getContentAsString();
         Integer id = JsonPath.parse(response).read("$.id");
+// UPDATE
+        VetTO upVetTO = new VetTO();
+        upVetTO.setId(id);
+        upVetTO.setFirstName(UP_FIRST_NAME);
+        upVetTO.setLastName(UP_LAST_NAME);
 
+        mockMvc.perform(put("/vets/" + id)
+                        .content(om.writeValueAsString(upVetTO))
+                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        // FIND
+        mockMvc.perform(get("/vets/" + id))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(id)))
+                .andExpect(jsonPath("$.firstName", is(UP_FIRST_NAME)))
+                .andExpect(jsonPath("$.lastName", is(UP_LAST_NAME)));
+
+        // DELETE
+        mockMvc.perform(delete("/vets/" + id))
+                .andExpect(status().isOk());
 
     }
 }
